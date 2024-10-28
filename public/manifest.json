@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Auto Dark Mode Exclude",
+  "version": "1.0.0",
+  "description": "Exclude domains from Auto Dark Mode",
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
+  "icons": {
+    "48": "images/moon/moon-48.png",
+    "128": "images/moon/moon-128.png"
+  },
+  "action": {
+    "default_popup": "popup/index.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content-script.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  }
+}

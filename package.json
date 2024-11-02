@@ -3,11 +3,15 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "dev": "vite",
     "build": "npm run build:popup && npm run build:background && npm run build:content",
     "build:popup": "tsc && vite build",
     "build:background": "tsc && vite build -c vite.config-background.ts",
     "build:content": "tsc && vite build -c vite.config-content.ts",
     "lint": "eslint"
+  },
+  "dependencies": {
+    "solid-js": "^1.9.3"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.279",
@@ -15,6 +19,7 @@
     "eslint": "^9.13.0",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.11.0",
-    "vite": "^5.4.9"
+    "vite": "^5.4.9",
+    "vite-plugin-solid": "^2.10.2"
   }
 }

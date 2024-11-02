@@ -1,4 +1,6 @@
-export async function isDarkModeDisabled(host: string) {
-    const storageValue = await chrome.storage.local.get(host);
-    return storageValue[host] === false;
+import { storageGet } from './storage';
+
+export async function isDarkModeEnabled(host: string) {
+    const storageValue = await storageGet(host);
+    return storageValue[host] === true || storageValue[host] === undefined;
 }

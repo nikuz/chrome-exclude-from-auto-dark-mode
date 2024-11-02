@@ -1,9 +1,11 @@
-import { isDarkModeDisabled } from 'utils';
+import { isDarkModeEnabled } from 'utils';
 
-const host = window.location.host;
+const location = window.location;
+const host = location.host;
+const hostWithPathname = `${host}${location.pathname}`;
 
 (async () => {
-    if (await isDarkModeDisabled(host)) {
+    if (!await isDarkModeEnabled(host) && !await isDarkModeEnabled(hostWithPathname)) {
         disableDarkMode();
     }
 })();
@@ -25,7 +27,7 @@ function disableDarkMode() {
 }
 
 chrome.storage.onChanged.addListener((changes) => {
-    if (changes[host]) {
+    if (changes[host] || changes[hostWithPathname]) {
         window.location.reload();
     }
 });

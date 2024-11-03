@@ -1,9 +1,9 @@
 import { render } from 'solid-js/web';
 import { createSignal, onMount } from 'solid-js';
 import {
-    setIcon,
     getCurrentTabUrl,
-    isDarkModeEnabled,
+    isDarkModeDisabled,
+    storageGet,
     storageSet,
 } from 'utils';
 
@@ -12,38 +12,32 @@ const MAX_PATHNAME_LENGTH = 30;
 function Popup() {
     const [host, setHost] = createSignal('');
     const [hostEnabled, setHostEnabled] = createSignal(true);
+    const [path, setPath] = createSignal('');
     const [hostWithPath, setHostWithPath] = createSignal('');
     const [hostWithPathEnabled, setHostWithPathEnabled] = createSignal(true);
 
     const hostChangeHandler = async (event: Event) => {
-        const tabUrl = await getCurrentTabUrl();
-        if (!tabUrl) {
-            return;
-        }
-
         const target = event.target as HTMLInputElement;
-        const checked = target.checked;
+        let checked = target.checked;
+
         setHostEnabled(checked);
-        storageSet(tabUrl.host, checked);
+        storageSet(host(), checked);
 
-        setHostWithPathEnabled(checked);
-        storageSet(`${tabUrl.host}${tabUrl.pathname}`, checked);
-
-        setIcon(checked ? 'moon' : 'sun');
+        if (path() !== '/') {
+            const hostWithPath = `${host()}${path()}`;
+            const hostPathStoreData = await storageGet(hostWithPath);
+            if (hostPathStoreData === undefined) {
+                setHostWithPathEnabled(checked);
+            }
+        }
     }
 
     const hostWithPathChangeHandler = async (event: Event) => {
-        const tabUrl = await getCurrentTabUrl();
-        if (!tabUrl) {
-            return;
-        }
-
         const target = event.target as HTMLInputElement;
         const checked = target.checked;
-        setHostWithPathEnabled(checked);
-        storageSet(`${tabUrl.host}${tabUrl.pathname}`, checked);
 
-        setIcon(checked ? 'moon' : 'sun');
+        setHostWithPathEnabled(checked);
+        storageSet(`${host()}${path()}`, checked);
     }
 
     onMount(async () => {
@@ -52,17 +46,21 @@ function Popup() {
             return;
         }
 
-        setHost(tabUrl.host);
-        setHostEnabled(await isDarkModeEnabled(tabUrl.host));
+        const host = tabUrl.host;
+        const path = tabUrl.pathname;
 
-        if (tabUrl.pathname !== '/') {
-            let pathname = tabUrl.pathname;
-            if (pathname.length > MAX_PATHNAME_LENGTH) {
-                pathname = pathname.substring(0, MAX_PATHNAME_LENGTH) + '...';
+        setHost(host);
+        setPath(path);
+        setHostEnabled(!await isDarkModeDisabled(host));
+
+        if (path !== '/') {
+            let pathSubstring = path;
+
+            if (path.length > MAX_PATHNAME_LENGTH) {
+                pathSubstring = path.substring(0, MAX_PATHNAME_LENGTH) + '...';
             }
-            const hostWithPath = `${tabUrl.host}${pathname}`;
-            setHostWithPath(hostWithPath);
-            setHostWithPathEnabled(await isDarkModeEnabled(`${tabUrl.host}${tabUrl.pathname}`));
+            setHostWithPath(`${host}${pathSubstring}`);
+            setHostWithPathEnabled(!await isDarkModeDisabled(`${host}${path}`));
         }
     });
 
@@ -85,7 +83,7 @@ function Popup() {
                 </label>
             </div>
 
-            {hostWithPath() !== '' && (
+            {path() !== '/' && (
                 <div class="row">
                     <label class="label" for="dark_mode_host_with_path">
                         {hostWithPath()}

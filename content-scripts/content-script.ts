@@ -1,14 +1,26 @@
-import { isDarkModeEnabled } from 'utils';
+import {
+    isDarkModeDisabled,
+    storageGet,
+    // storageClear,
+} from 'utils';
 
 const location = window.location;
 const host = location.host;
-const hostWithPathname = `${host}${location.pathname}`;
+const path = location.pathname;
+const hostWithPath = path !== '/' ? `${host}${path}` : '';
 
-(async () => {
-    if (!await isDarkModeEnabled(host) && !await isDarkModeEnabled(hostWithPathname)) {
+async function darkModeCheckHandler() {
+    const hostDarkModeDisabled = await isDarkModeDisabled(host);
+
+    if (path !== '/') {
+        const hostPathStoreData = await storageGet(hostWithPath);
+        if (hostPathStoreData === false || (hostPathStoreData === undefined && hostDarkModeDisabled)) {
+            disableDarkMode();
+        }
+    } else if (hostDarkModeDisabled) {
         disableDarkMode();
     }
-})();
+}
 
 function disableDarkMode() {
     const existingMetaTag = document.head.querySelector('meta[name="color-scheme"]');
@@ -27,7 +39,12 @@ function disableDarkMode() {
 }
 
 chrome.storage.onChanged.addListener((changes) => {
-    if (changes[host] || changes[hostWithPathname]) {
+    if (changes[host] || (hostWithPath && changes[hostWithPath])) {
         window.location.reload();
     }
 });
+
+(async () => {
+    // await storageClear();
+    darkModeCheckHandler();
+})();

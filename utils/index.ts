@@ -1,4 +1,4 @@
 export * from './get-current-tab-url';
-export * from './is-dark-mode-enabled';
+export * from './is-dark-mode-disabled';
 export * from './set-icon';
 export * from './storage';

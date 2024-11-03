@@ -10,8 +10,17 @@ export async function storageSet(key: string, value: any) {
 
 export async function storageGet(key: string) {
     if (import.meta.env.DEV) {
-        return {};
+        return;
     }
 
-    return await chrome.storage.local.get(key);
+    const data = await chrome.storage.local.get(key);
+    return data[key]
+}
+
+export async function storageClear() {
+    if (import.meta.env.DEV) {
+        return;
+    }
+
+    await chrome.storage.local.clear();
 }

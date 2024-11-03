@@ -1,14 +1,35 @@
-import { setIcon, isDarkModeEnabled } from 'utils';
+import {
+    setIcon,
+    isDarkModeDisabled,
+    getCurrentTabUrl,
+    storageGet,
+} from 'utils';
 
-chrome.tabs.onActivated.addListener(async (event) => {
-    const tab = await chrome.tabs.get(event.tabId);
-    if (!tab || !tab.url) {
+async function iconChangeHandler() {
+    const tabUrl = await getCurrentTabUrl();
+    if (!tabUrl) {
         return;
     }
-    const tabUrl = new URL(tab.url);
-    const host = tabUrl.host;
-    const hostWithPathname = `${host}${tabUrl.pathname}`;
-    const darkModeEnabled = await isDarkModeEnabled(host) && await isDarkModeEnabled(hostWithPathname);
 
-    setIcon(darkModeEnabled ? 'moon' : 'sun');
+    const host = tabUrl.host;
+    const path = tabUrl.pathname;
+    let darkModeDisabled = await isDarkModeDisabled(host);
+
+    if (path !== '/') {
+        const hostWithPath = `${host}${path}`;
+        const hostPathStoreData = await storageGet(hostWithPath);
+        if (hostPathStoreData !== undefined) {
+            darkModeDisabled = !hostPathStoreData;
+        }
+    }
+
+    setIcon(darkModeDisabled ? 'sun' : 'moon');
+}
+
+chrome.tabs.onActivated.addListener(() => {
+    iconChangeHandler();
+});
+
+chrome.storage.onChanged.addListener(() => {
+    iconChangeHandler();
 });

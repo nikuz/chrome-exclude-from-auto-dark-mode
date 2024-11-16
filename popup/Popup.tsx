@@ -1,5 +1,6 @@
 import { render } from 'solid-js/web';
 import { createSignal, onMount } from 'solid-js';
+import { Toggle } from './components';
 import {
     getCurrentTabUrl,
     isDarkModeDisabled,
@@ -68,36 +69,18 @@ function Popup() {
         <div class="container">
             <h3 class="title">Enable Auto Dark Mode</h3>
 
-            <div class="row">
-                <label class="label" for="dark_mode_host">
-                    {host()}
-                </label>
-                <label class="switch">
-                    <input
-                        type="checkbox"
-                        id="dark_mode_host"
-                        checked={hostEnabled()}
-                        onChange={hostChangeHandler}
-                    />
-                    <span class="slider" />
-                </label>
-            </div>
+            <Toggle
+                label={host()}
+                checked={hostEnabled()}
+                onChange={hostChangeHandler}
+            />
 
             {path() !== '/' && (
-                <div class="row">
-                    <label class="label" for="dark_mode_host_with_path">
-                        {hostWithPath()}
-                    </label>
-                    <label class="switch">
-                        <input
-                            type="checkbox"
-                            id="dark_mode_host_with_path"
-                            checked={hostWithPathEnabled()}
-                            onChange={hostWithPathChangeHandler}
-                        />
-                        <span class="slider" />
-                    </label>
-                </div>
+                <Toggle
+                    label={hostWithPath()}
+                    checked={hostWithPathEnabled()}
+                    onChange={hostWithPathChangeHandler}
+                />
             )}
         </div>
     );
